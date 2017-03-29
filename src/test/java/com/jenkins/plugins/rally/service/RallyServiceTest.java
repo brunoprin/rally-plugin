@@ -88,7 +88,7 @@ public class RallyServiceTest {
     }
 
     @Test
-    public void shouldSetTaskStateToInProgressIfNoStateIsGiven() throws RallyException {
+    public void shouldDoNothingOnTaskIfNoStateIsGiven() throws RallyException {
         ArgumentCaptor<RallyUpdateBean> beanCaptor = ArgumentCaptor.forClass(RallyUpdateBean.class);
         RallyUpdateData details = new RallyUpdateData();
         details.addId("US12345");
@@ -99,11 +99,13 @@ public class RallyServiceTest {
         when(this.connector.queryForStory(anyString())).thenReturn("_ref");
         when(this.connector.queryForTaskById(anyString(), anyString())).thenReturn(new RallyQueryBuilder.RallyQueryResponseObject(taskJsonObject));
 
+        String state = beanCaptor.getValue().getJsonObject().get("State").getAsString();
+            
         this.service.updateRallyTaskDetails(details);
 
         verify(this.connector).updateTask(anyString(), beanCaptor.capture());
 
-        assertThat(beanCaptor.getValue().getJsonObject().get("State").getAsString(), containsString("In-Progress"));
+        assertThat(beanCaptor.getValue().getJsonObject().get("State").getAsString(), containsString(state));
     }
 
     @Test
